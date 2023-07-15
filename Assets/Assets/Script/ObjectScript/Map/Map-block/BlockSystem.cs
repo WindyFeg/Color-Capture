@@ -6,24 +6,30 @@ using UnityEngine;
 
 public partial struct BlockSystem : ISystem
 {
+    public bool IsSetBlockStatus { set; get; }
     public void OnCreate(ref SystemState state)
     {
         //! Have Map data 
         state.RequireForUpdate<Map>();
         state.RequireForUpdate<MapData>();
 
-        var map = SystemAPI.GetSingleton<Map>();
-        var mapData = SystemAPI.GetSingleton<MapData>()._mapData;
-        var totalBlock = map.mapWidth * map.mapHeight;
-        foreach (var (blockId, mapBlock) in SystemAPI.Query<RefRO<BlockId>, RefRW<MapBlock>>())
-        {
-            Debug.Log(mapData[blockId.ValueRO.blockId]);
-            mapBlock.ValueRW.mapBlockStatus = mapData[blockId.ValueRO.blockId];
-        }
-
+        IsSetBlockStatus = false;
     }
 
     public void OnUpdate(ref SystemState state)
+    {
+        if (IsSetBlockStatus == false)
+        {
+            SetBlockStatus(ref state);
+            IsSetBlockStatus = true;
+        }
+        else
+        {
+            UpdateColorBaseOnStatus(ref state);
+        }
+    }
+
+    private void UpdateColorBaseOnStatus(ref SystemState state)
     {
         foreach (var (block, materialMeshInfo) in SystemAPI.Query<RefRO<MapBlock>, RefRW<MaterialMeshInfo>>())
         {
@@ -46,6 +52,18 @@ public partial struct BlockSystem : ISystem
                     materialMeshInfo.ValueRW.MaterialID = block.ValueRO.wallMaterialID;
                     break;
             }
+        }
+    }
+
+    private void SetBlockStatus(ref SystemState state)
+    {
+        var map = SystemAPI.GetSingleton<Map>();
+        var mapData = SystemAPI.GetSingleton<MapData>()._mapData;
+        var totalBlock = map.mapWidth * map.mapHeight;
+        foreach (var (blockId, mapBlock) in SystemAPI.Query<RefRO<BlockId>, RefRW<MapBlock>>())
+        {
+            Debug.Log(mapData[blockId.ValueRO.blockId]);
+            mapBlock.ValueRW.mapBlockStatus = mapData[blockId.ValueRO.blockId];
         }
     }
 }
