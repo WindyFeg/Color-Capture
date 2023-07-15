@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5885997960492337492}
   - component: {fileID: 6322175145117514464}
   - component: {fileID: 2931134684630862843}
+  - component: {fileID: 3772916580681539506}
   m_Layer: 0
   m_Name: Map-block
   m_TagString: Untagged
@@ -105,3 +106,20 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3772916580681539506
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1682766396223970251}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74ff69e99c52ff844b410d60307463f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _mapBlockStatus: 2
+  _emptyMaterial: {fileID: 2100000, guid: fd1419a4032f0ae4895ee90079c74d26, type: 2}
+  _wallMaterial: {fileID: 2100000, guid: 1a4e014ccd5776d4e833e3bdff5ad57a, type: 2}
+  _redMaterial: {fileID: 2100000, guid: 5469628415fa9c44cbd086fd2e6f8948, type: 2}
+  _greenMaterial: {fileID: 2100000, guid: 6c7cd30a776a2d04e86d4947c99a7b4b, type: 2}
