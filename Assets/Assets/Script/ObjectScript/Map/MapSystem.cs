@@ -10,14 +10,20 @@ public partial struct MapSystem : ISystem
 
     public void OnCreate(ref SystemState state)
     {
-        // require for update
         state.RequireForUpdate<Map>();
     }
 
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        //Spawn map
+        EntityCommandBuffer ecb = SpawnMapBlock(ref state);
+        ecb.Playback(state.EntityManager);
+
+        state.Enabled = false;
+    }
+
+    private EntityCommandBuffer SpawnMapBlock(ref SystemState state)
+    {
         var ecb = new EntityCommandBuffer(Allocator.TempJob);
         var mapBlock = SystemAPI.GetSingleton<Map>();
         int mapWidth = mapBlock.mapWidth;
@@ -42,8 +48,7 @@ public partial struct MapSystem : ISystem
             }
         }
 
-        ecb.Playback(state.EntityManager);
-        state.Enabled = false;
+        return ecb;
     }
 }
 

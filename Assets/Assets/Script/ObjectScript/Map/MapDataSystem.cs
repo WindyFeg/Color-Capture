@@ -7,11 +7,16 @@ public partial struct MapDataSystem : ISystem
 
     public void OnCreate(ref SystemState state)
     {
-        // require for update
         state.RequireForUpdate<Map>();
     }
 
     public void OnUpdate(ref SystemState state)
+    {
+        RandomWall(ref state);
+        state.Enabled = false;
+    }
+
+    private void RandomWall(ref SystemState state)
     {
         var gameManager = state.GetEntityQuery(typeof(Map)).GetSingletonEntity();
         var map = SystemAPI.GetSingleton<Map>();
@@ -25,8 +30,6 @@ public partial struct MapDataSystem : ISystem
         {
             _mapData = mapData,
         });
-
-        state.Enabled = false;
     }
 }
 
