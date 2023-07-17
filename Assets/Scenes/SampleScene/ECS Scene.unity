@@ -154,7 +154,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _mapBlockPrefab: {fileID: 1682766396223970251, guid: 6d3dbb7b65c9ba64eb784cb04a005ca1,
     type: 3}
-  _mapWidth: 5
+  _mapWidth: 10
   _mapHeight: 10
 --- !u!4 &815003142
 Transform:
