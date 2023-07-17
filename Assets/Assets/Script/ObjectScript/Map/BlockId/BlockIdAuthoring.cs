@@ -1,6 +1,9 @@
 using Unity.Entities;
 
-public partial struct BlockId : IComponentData
+namespace CoCa.MapBlock
 {
-    public int blockId { get; set; }
+    public partial struct BlockId : IComponentData
+    {
+        public int blockId { get; set; }
+    }
 }
