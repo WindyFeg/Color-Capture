@@ -35,25 +35,26 @@ namespace CoCa.MapBlock
 
         private void UpdateColorBaseOnStatus(ref SystemState state)
         {
-            foreach (var (block, materialMeshInfo) in SystemAPI.Query<RefRO<MapBlock>, RefRW<MaterialMeshInfo>>())
+            foreach (var (materialMeshInfo, entity) in SystemAPI.Query<RefRW<MaterialMeshInfo>>().WithEntityAccess())
             {
-                Debug.Log(block.ValueRO.mapBlockStatus);
-                switch (block.ValueRO.mapBlockStatus)
+                var mapBlock = state.EntityManager.GetSharedComponentManaged<MapBlock>(entity);
+                Debug.Log(mapBlock.mapBlockStatus);
+                switch (mapBlock.mapBlockStatus)
                 {
                     case UniteData.Color.Red:
-                        materialMeshInfo.ValueRW.MaterialID = block.ValueRO.redMaterialID;
+                        materialMeshInfo.ValueRW.MaterialID = mapBlock.redMaterialID;
                         break;
                     case UniteData.Color.Green:
-                        materialMeshInfo.ValueRW.MaterialID = block.ValueRO.greenMaterialID;
+                        materialMeshInfo.ValueRW.MaterialID = mapBlock.greenMaterialID;
                         break;
                     case UniteData.Color.Empty:
-                        materialMeshInfo.ValueRW.MaterialID = block.ValueRO.emptyMaterialID;
+                        materialMeshInfo.ValueRW.MaterialID = mapBlock.emptyMaterialID;
                         break;
                     case UniteData.Color.Wall:
-                        materialMeshInfo.ValueRW.MaterialID = block.ValueRO.wallMaterialID;
+                        materialMeshInfo.ValueRW.MaterialID = mapBlock.wallMaterialID;
                         break;
                     default:
-                        materialMeshInfo.ValueRW.MaterialID = block.ValueRO.wallMaterialID;
+                        materialMeshInfo.ValueRW.MaterialID = mapBlock.wallMaterialID;
                         break;
                 }
             }
@@ -61,14 +62,23 @@ namespace CoCa.MapBlock
 
         private void SetBlockStatus(ref SystemState state)
         {
+            #region Variable
             var map = SystemAPI.GetSingleton<CoCa.Map.Map>();
             var mapData = SystemAPI.GetSingleton<MapData>()._mapData;
             var totalBlock = map.mapWidth * map.mapHeight;
-            foreach (var (blockId, mapBlock) in SystemAPI.Query<RefRO<BlockId>, RefRW<MapBlock>>())
+            var ecb = new EntityCommandBuffer(Unity.Collections.Allocator.Temp);
+            #endregion
+
+            #region Set map data to Block
+            foreach (var (blockId, entity) in SystemAPI.Query<RefRO<BlockId>>().WithEntityAccess())
             {
                 Debug.Log(mapData[blockId.ValueRO.blockId]);
-                mapBlock.ValueRW.mapBlockStatus = mapData[blockId.ValueRO.blockId];
+                var MapBlock = state.EntityManager.GetSharedComponentManaged<MapBlock>(entity);
+                MapBlock.mapBlockStatus = mapData[blockId.ValueRO.blockId];
+                ecb.SetSharedComponentManaged(entity, MapBlock);
             }
+            ecb.Playback(state.EntityManager);
+            #endregion
         }
     }
 }

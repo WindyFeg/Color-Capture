@@ -118,7 +118,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74ff69e99c52ff844b410d60307463f5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _mapBlockStatus: 2
+  _mapBlockStatus: 0
   _emptyMaterial: {fileID: 2100000, guid: fd1419a4032f0ae4895ee90079c74d26, type: 2}
   _wallMaterial: {fileID: 2100000, guid: 1a4e014ccd5776d4e833e3bdff5ad57a, type: 2}
   _redMaterial: {fileID: 2100000, guid: 5469628415fa9c44cbd086fd2e6f8948, type: 2}

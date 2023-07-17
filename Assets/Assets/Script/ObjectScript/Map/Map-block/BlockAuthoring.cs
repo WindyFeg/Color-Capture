@@ -1,10 +1,7 @@
 using Unity.Entities;
 using UnityEngine;
-using UniteData;
 using Unity.Rendering;
 using UnityEngine.Rendering;
-using Unity.Burst;
-using Unity.Transforms;
 
 namespace CoCa.MapBlock
 {
@@ -16,7 +13,7 @@ namespace CoCa.MapBlock
         public Material _redMaterial;
         public Material _greenMaterial;
     }
-    public partial struct MapBlock : IComponentData
+    public partial struct MapBlock : ISharedComponentData
     {
         public UniteData.Color mapBlockStatus;
         public BatchMaterialID emptyMaterialID;
@@ -30,7 +27,7 @@ namespace CoCa.MapBlock
         {
             var entity = GetEntity(TransformUsageFlags.Dynamic);
             var hybridRender = World.DefaultGameObjectInjectionWorld.GetExistingSystemManaged<Entities​Graphics​System>();
-            AddComponent(entity, new MapBlock
+            AddSharedComponent(entity, new MapBlock
             {
                 mapBlockStatus = authoring._mapBlockStatus,
 
