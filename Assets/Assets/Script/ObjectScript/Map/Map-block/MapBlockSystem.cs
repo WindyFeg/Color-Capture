@@ -4,6 +4,8 @@ using Unity.Transforms;
 using Unity.Rendering;
 using UnityEngine;
 using CoCa.Map;
+using Unity.Burst;
+
 
 namespace CoCa.MapBlock
 {
@@ -11,6 +13,8 @@ namespace CoCa.MapBlock
     public partial struct BlockSystem : ISystem
     {
         public bool IsSetBlockStatus { set; get; }
+
+        [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             //! Have Map data 
@@ -20,6 +24,7 @@ namespace CoCa.MapBlock
             IsSetBlockStatus = false;
         }
 
+        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             if (IsSetBlockStatus == false)
@@ -35,10 +40,12 @@ namespace CoCa.MapBlock
 
         private void UpdateColorBaseOnStatus(ref SystemState state)
         {
-            foreach (var (materialMeshInfo, entity) in SystemAPI.Query<RefRW<MaterialMeshInfo>>().WithEntityAccess())
+            foreach (var (materialMeshInfo, entity) in SystemAPI.Query<RefRW<MaterialMeshInfo>>().WithEntityAccess().WithNone<CoCa.Player.PlayerMovement>())
             {
-                var mapBlock = state.EntityManager.GetSharedComponentManaged<MapBlock>(entity);
-                Debug.Log(mapBlock.mapBlockStatus);
+                CoCa.MapBlock.MapBlock mapBlock;
+                mapBlock = state.EntityManager.GetSharedComponent<CoCa.MapBlock.MapBlock>(entity);
+
+                // Debug.Log(mapBlock.mapBlockStatus);
                 switch (mapBlock.mapBlockStatus)
                 {
                     case UniteData.Color.Red:
@@ -72,12 +79,13 @@ namespace CoCa.MapBlock
             #region Set map data to Block
             foreach (var (blockId, entity) in SystemAPI.Query<RefRO<BlockId>>().WithEntityAccess())
             {
-                Debug.Log(mapData[blockId.ValueRO.blockId]);
+                // Debug.Log(mapData[blockId.ValueRO.blockId]);
                 var MapBlock = state.EntityManager.GetSharedComponentManaged<MapBlock>(entity);
                 MapBlock.mapBlockStatus = mapData[blockId.ValueRO.blockId];
                 ecb.SetSharedComponentManaged(entity, MapBlock);
             }
             ecb.Playback(state.EntityManager);
+            ecb.Dispose();
             #endregion
         }
     }

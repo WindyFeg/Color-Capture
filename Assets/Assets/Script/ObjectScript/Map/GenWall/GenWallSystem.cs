@@ -8,11 +8,13 @@ namespace CoCa.Map
     public partial struct GenWallSystem : ISystem
     {
 
+        [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             state.RequireForUpdate<Map>();
         }
 
+        [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             RandomWall(ref state);
@@ -33,7 +35,7 @@ namespace CoCa.Map
             for (int i = 0; i < totalBlock / 2; i++)
             {
                 mapData[i] = RandomWall(25);
-                Debug.Log(mapData[i]);
+                // Debug.Log(mapData[i]);
             }
             //Set empty for 4 corner
             mapData[0] = UniteData.Color.Empty;
@@ -44,7 +46,7 @@ namespace CoCa.Map
             for (int i = totalBlock / 2; i < totalBlock; i++)
             {
                 mapData[i] = mapData[totalBlock - i - 1];
-                Debug.Log(mapData[i]);
+                // Debug.Log(mapData[i]);
             }
             #endregion
 

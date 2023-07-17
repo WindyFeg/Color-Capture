@@ -10,6 +10,7 @@ namespace CoCa.Map
     public partial struct MapSystem : ISystem
     {
 
+        [BurstCompile]
         public void OnCreate(ref SystemState state)
         {
             state.RequireForUpdate<Map>();
@@ -20,6 +21,7 @@ namespace CoCa.Map
         {
             EntityCommandBuffer ecb = SpawnMapBlock(ref state);
             ecb.Playback(state.EntityManager);
+            ecb.Dispose();
 
             state.Enabled = false;
         }
