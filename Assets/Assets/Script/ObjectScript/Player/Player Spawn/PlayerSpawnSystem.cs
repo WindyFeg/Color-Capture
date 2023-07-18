@@ -48,6 +48,8 @@ namespace CoCa.Player
                 playerColor = UniteData.Color.Red,
                 playerMovementPosition = map.mapHeight * map.mapWidth - 1
             });
+            ecb.AddComponent(redPlayer, new OtherPlayer { });
+
             #endregion
 
             ecb.Playback(state.EntityManager);
