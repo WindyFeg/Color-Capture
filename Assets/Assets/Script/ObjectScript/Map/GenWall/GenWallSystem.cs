@@ -34,7 +34,7 @@ namespace CoCa.Map
             //Random half left
             for (int i = 0; i < totalBlock / 2; i++)
             {
-                mapData[i] = RandomWall(25);
+                mapData[i] = RandomWall(15);
                 // Debug.Log(mapData[i]);
             }
             //Set empty for 4 corner

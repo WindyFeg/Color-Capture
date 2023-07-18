@@ -10,11 +10,12 @@ namespace CoCa.Player
 {
     public partial struct PlayerMovementSystem : ISystem
     {
+        private bool _twoPlayerMode;
         private bool _playerTurn;
         private Entity _currentPlayer;
+        private Direction _direction;
         private PlayerMovement _playerMovementComponent;
         private CoCa.Map.Map _map;
-        private Direction _direction;
 
         public void OnCreate(ref SystemState state)
         {
@@ -29,6 +30,7 @@ namespace CoCa.Player
             _map = SystemAPI.GetSingleton<CoCa.Map.Map>();
             EntityQuery mainPlayerEq = state.GetEntityQuery(typeof(MainPlayer));
             EntityQuery enemyPlayerEq = state.GetEntityQuery(typeof(OtherPlayer));
+            _twoPlayerMode = SystemAPI.GetSingleton<CoCa.Map.Map>().TwoPlayerMode;
             #endregion
 
             #region Turn base movement
@@ -53,9 +55,23 @@ namespace CoCa.Player
                 _playerMovementComponent = state.EntityManager.
             GetComponentData<PlayerMovement>(_currentPlayer);
 
-                EnemyAutoSetLegitMove(ref state, _currentPlayer);
-                Move(ref state, _currentPlayer);
-                _playerTurn = true;
+                if (_twoPlayerMode)
+                {
+                    //* Player VS Player
+                    GetMoveInput(ref state);
+                    if (CheckLegitMove(ref state, _currentPlayer))
+                    {
+                        Move(ref state, _currentPlayer);
+                        _playerTurn = true;
+                    }
+                }
+                else
+                {
+                    //* Player VS AI
+                    EnemyAutoSetLegitMove(ref state, _currentPlayer);
+                    Move(ref state, _currentPlayer);
+                    _playerTurn = true;
+                }
             }
 
             UpdatePlayerPosition(ref state);
@@ -106,22 +122,22 @@ namespace CoCa.Player
         private void GetMoveInput(ref SystemState state)
         {
             #region Player Input
-            if (Input.GetKeyDown(KeyCode.W))
+            if (Input.GetKeyDown(KeyCode.UpArrow))
             {
                 _playerMovementComponent.playerMovementPosition += 1;
                 _direction = Direction.Up;
             }
-            if (Input.GetKeyDown(KeyCode.A))
+            if (Input.GetKeyDown(KeyCode.LeftArrow))
             {
                 _playerMovementComponent.playerMovementPosition -= _map.mapHeight;
                 _direction = Direction.Left;
             }
-            if (Input.GetKeyDown(KeyCode.S))
+            if (Input.GetKeyDown(KeyCode.DownArrow))
             {
                 _playerMovementComponent.playerMovementPosition -= 1;
                 _direction = Direction.Down;
             }
-            if (Input.GetKeyDown(KeyCode.D))
+            if (Input.GetKeyDown(KeyCode.RightArrow))
             {
                 _playerMovementComponent.playerMovementPosition += _map.mapHeight;
                 _direction = Direction.Right;

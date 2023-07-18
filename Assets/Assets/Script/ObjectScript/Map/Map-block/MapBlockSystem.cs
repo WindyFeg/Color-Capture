@@ -80,9 +80,9 @@ namespace CoCa.MapBlock
             foreach (var (blockId, entity) in SystemAPI.Query<RefRO<BlockId>>().WithEntityAccess())
             {
                 // Debug.Log(mapData[blockId.ValueRO.blockId]);
-                var MapBlock = state.EntityManager.GetSharedComponentManaged<MapBlock>(entity);
+                var MapBlock = state.EntityManager.GetSharedComponent<MapBlock>(entity);
                 MapBlock.mapBlockStatus = mapData[blockId.ValueRO.blockId];
-                ecb.SetSharedComponentManaged(entity, MapBlock);
+                ecb.SetSharedComponent(entity, MapBlock);
             }
             ecb.Playback(state.EntityManager);
             ecb.Dispose();
