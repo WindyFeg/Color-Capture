@@ -5,6 +5,7 @@ using Unity.Transforms;
 using UnityEngine;
 using UniteData;
 using CoCa.Map;
+using CoCa.Ai;
 
 namespace CoCa.Player
 {
@@ -78,21 +79,70 @@ namespace CoCa.Player
             #endregion
         }
 
+
+
         //* Set legit next move on (Entity) base on _playerMovementComponent
         private void EnemyAutoSetLegitMove(ref SystemState state, Entity enemyPlayer)
         {
+            NativeArray<UniteData.Color> mapData = SystemAPI.GetSingleton<MapData>()._mapData;
             EntityQuery enemyQuery = state.GetEntityQuery(typeof(OtherPlayer));
             Entity enemyEntity = enemyQuery.GetSingletonEntity();
 
-            _playerMovementComponent.playerMovementPosition -= 1;
+            //$ AI
+            // var aiMap = SystemAPI.GetSingleton<AiMap>()._aiMapData;
+
+            var aiMove = UniteData.Direction.Left;
+            SetPlayerMoveDirection(aiMove);
 
         }
 
-        //* Apply movement to (Entity) base on _playerMovementComponent 
-        private Direction Move(ref SystemState state, Entity mainPlayer)
+        //* Set position of (Entity) base on _playerMovementComponent
+        private void SetPlayerMoveDirection(UniteData.Direction direction)
         {
-            state.EntityManager.SetComponentData(mainPlayer, _playerMovementComponent);
-            return _direction;
+            switch (direction)
+            {
+                case UniteData.Direction.Up:
+                    _playerMovementComponent.playerMovementPosition += 1;
+                    break;
+                case UniteData.Direction.Left:
+                    _playerMovementComponent.playerMovementPosition -= _map.mapHeight;
+                    break;
+                case UniteData.Direction.Down:
+                    _playerMovementComponent.playerMovementPosition -= 1;
+                    break;
+                case UniteData.Direction.Right:
+                    _playerMovementComponent.playerMovementPosition += _map.mapHeight;
+                    break;
+            }
+        }
+
+        //* Wait User get input, update next move to _playerMovementComponent
+        private void GetMoveInput(ref SystemState state)
+        {
+            #region Player Input
+            if (Input.GetKeyDown(KeyCode.UpArrow))
+            {
+                _direction = Direction.Up;
+                SetPlayerMoveDirection(_direction);
+            }
+            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            {
+                _direction = Direction.Left;
+                SetPlayerMoveDirection(_direction);
+            }
+            if (Input.GetKeyDown(KeyCode.DownArrow))
+            {
+                _direction = Direction.Down;
+                SetPlayerMoveDirection(_direction);
+            }
+            if (Input.GetKeyDown(KeyCode.RightArrow))
+            {
+                _direction = Direction.Right;
+                SetPlayerMoveDirection(_direction);
+            }
+            #endregion
+
+            return;
         }
 
         //* Check legit next move on (Entity) base on _playerMovementComponent
@@ -117,34 +167,11 @@ namespace CoCa.Player
             return mapData[nextMovePosition] == UniteData.Color.Empty;
         }
 
-
-        //* Wait User get input, update next move to _playerMovementComponent
-        private void GetMoveInput(ref SystemState state)
+        //* Apply movement to (Entity) base on _playerMovementComponent 
+        private Direction Move(ref SystemState state, Entity mainPlayer)
         {
-            #region Player Input
-            if (Input.GetKeyDown(KeyCode.UpArrow))
-            {
-                _playerMovementComponent.playerMovementPosition += 1;
-                _direction = Direction.Up;
-            }
-            if (Input.GetKeyDown(KeyCode.LeftArrow))
-            {
-                _playerMovementComponent.playerMovementPosition -= _map.mapHeight;
-                _direction = Direction.Left;
-            }
-            if (Input.GetKeyDown(KeyCode.DownArrow))
-            {
-                _playerMovementComponent.playerMovementPosition -= 1;
-                _direction = Direction.Down;
-            }
-            if (Input.GetKeyDown(KeyCode.RightArrow))
-            {
-                _playerMovementComponent.playerMovementPosition += _map.mapHeight;
-                _direction = Direction.Right;
-            }
-            #endregion
-
-            return;
+            state.EntityManager.SetComponentData(mainPlayer, _playerMovementComponent);
+            return _direction;
         }
 
         //* Set position all player to their variable playerPosition
