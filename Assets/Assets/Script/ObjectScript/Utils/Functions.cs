@@ -89,5 +89,40 @@ namespace CoCa.Functions
         //     {
         //         return SystemAPI.GetSingleton<AiMap>()._aiMapData;
         //     }
+
+        public static int[,] CreatePattern(int size)
+        {
+            int[,] pattern = new int[size, size];
+            int mid = size / 2;
+
+            for (int i = 0; i <= mid; i++)
+            {
+                for (int j = i; j < size - i; j++)
+                {
+                    pattern[i, j] = pattern[j, i] = pattern[size - 1 - i, j] = pattern[j, size - 1 - i] = i + 1;
+                }
+            }
+
+            return pattern;
+        }
+
+        public static int[] FlattenArray(int[,] array2D)
+        {
+            int rows = array2D.GetLength(0);
+            int columns = array2D.GetLength(1);
+            int[] array1D = new int[rows * columns];
+
+            int index = 0;
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < columns; j++)
+                {
+                    array1D[index] = array2D[i, j];
+                    index++;
+                }
+            }
+
+            return array1D;
+        }
     }
 }

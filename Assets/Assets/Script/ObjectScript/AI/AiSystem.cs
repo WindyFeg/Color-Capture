@@ -36,6 +36,7 @@ namespace CoCa.Ai
 
                 var aiMapEntity = SystemAPI.GetSingleton<AiMap>();
                 aiMap = aiMapEntity._aiMapData;
+                aiMap = InitAiCentreMapData(aiMap);
                 aiMap = InitAiGroundMapData(aiMap, mapData);
                 aiMap = InitAiWallMapData(aiMap);
                 aiMap = CurrentAiPlayer(ref state, aiMap);
@@ -46,11 +47,24 @@ namespace CoCa.Ai
             }
 
 
-            foreach (var item in aiMap)
+            for (int i = 0; i < aiMap.Length; i++)
             {
-                Debug.Log(item);
+                Debug.Log("Position " + i + " score :" + aiMap[i]);
             }
             state.Enabled = false;
+        }
+
+        private NativeArray<int> InitAiCentreMapData(NativeArray<int> aiMap)
+        {
+            var sizeMap = map.mapWidth;
+            int[,] pattern = Functions.Functions.CreatePattern(sizeMap);
+            int[] patternFlatten = Functions.Functions.FlattenArray(pattern);
+
+            for (int i = 0; i < map.mapHeight * map.mapWidth; i++)
+            {
+                aiMap[i] += patternFlatten[i];
+            }
+            return aiMap;
         }
 
         private NativeArray<int> AvoidStuckWall(NativeArray<int> aiMap)
@@ -101,7 +115,7 @@ namespace CoCa.Ai
                     nullMap[i] = 0;
                     continue;
                 }
-                nullMap[i] = 1;
+                nullMap[i] += 1;
             }
             return nullMap;
         }
@@ -116,22 +130,25 @@ namespace CoCa.Ai
                 {
                     continue;
                 }
-                //* Check around map left
-                //* 1->9
-                if (i < map.mapWidth && i > 0)
-                    aiMap[i] += ai._scoreWall;
-                //* Check around map right
-                //* 91->99
-                if (i < map.mapWidth * map.mapHeight && i > map.mapWidth * map.mapHeight - map.mapWidth)
-                    aiMap[i] += ai._scoreWall;
-                //* Check around map top
-                //* 0,10,20,30,40,50,60,70,80
-                if (i % map.mapWidth == 0)
-                    aiMap[i] += ai._scoreWall;
-                //* Check around map bottom
-                //* 9,19,29,39,49,59,69,79,89
-                if (i % map.mapWidth == map.mapWidth - 1)
-                    aiMap[i] += ai._scoreWall;
+                else
+                {
+                    //* Check around map left
+                    //* 1->9
+                    if (i < map.mapWidth && i > 0)
+                        aiMap[i] += ai._scoreWall;
+                    //* Check around map right
+                    //* 91->99
+                    if (i < map.mapWidth * map.mapHeight && i > map.mapWidth * map.mapHeight - map.mapWidth)
+                        aiMap[i] += ai._scoreWall;
+                    //* Check around map top
+                    //* 0,10,20,30,40,50,60,70,80
+                    if (i % map.mapWidth == 0)
+                        aiMap[i] += ai._scoreWall;
+                    //* Check around map bottom
+                    //* 9,19,29,39,49,59,69,79,89
+                    if (i % map.mapWidth == map.mapWidth - 1)
+                        aiMap[i] += ai._scoreWall;
+                }
             }
             #endregion
 
@@ -147,19 +164,19 @@ namespace CoCa.Ai
                     var down = Functions.Functions.GetDownId(i, map.mapWidth, map.mapHeight);
                     var right = Functions.Functions.GetRightId(i, map.mapWidth, map.mapHeight);
 
-                    if (up != -1)
+                    if (up != -1 && aiMap[up] != 0)
                     {
                         aiMap[up] += ai._scoreWall;
                     }
-                    if (left != -1)
+                    if (left != -1 && aiMap[left] != 0)
                     {
                         aiMap[left] += ai._scoreWall;
                     }
-                    if (down != -1)
+                    if (down != -1 && aiMap[down] != 0)
                     {
                         aiMap[down] += ai._scoreWall;
                     }
-                    if (right != -1)
+                    if (right != -1 && aiMap[right] != 0)
                     {
                         aiMap[right] += ai._scoreWall;
                     }
