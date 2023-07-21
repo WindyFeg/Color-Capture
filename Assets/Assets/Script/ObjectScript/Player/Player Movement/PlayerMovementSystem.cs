@@ -43,7 +43,7 @@ namespace CoCa.Player
             GetComponentData<PlayerMovement>(_currentPlayer);
 
                 GetMoveInput(ref state);
-                if (CheckLegitMove(ref state, _currentPlayer))
+                if (CheckLegitMove(ref state, _currentPlayer, _playerMovementComponent.playerMovementPosition))
                 {
                     Move(ref state, _currentPlayer);
                     _playerTurn = false;
@@ -60,7 +60,7 @@ namespace CoCa.Player
                 {
                     //* Player VS Player
                     GetMoveInput(ref state);
-                    if (CheckLegitMove(ref state, _currentPlayer))
+                    if (CheckLegitMove(ref state, _currentPlayer, _playerMovementComponent.playerMovementPosition))
                     {
                         Move(ref state, _currentPlayer);
                         _playerTurn = true;
@@ -70,8 +70,15 @@ namespace CoCa.Player
                 {
                     //* Player VS AI
                     EnemyAutoSetLegitMove(ref state, _currentPlayer);
-                    Move(ref state, _currentPlayer);
-                    _playerTurn = true;
+                    if (CheckLegitMove(ref state, _currentPlayer, _playerMovementComponent.playerMovementPosition))
+                    {
+                        Move(ref state, _currentPlayer);
+                        _playerTurn = true;
+                    }
+                    else
+                    {
+                        state.Enabled = false;
+                    }
                 }
             }
 
@@ -89,10 +96,56 @@ namespace CoCa.Player
             Entity enemyEntity = enemyQuery.GetSingletonEntity();
 
             //$ AI
-            // var aiMap = SystemAPI.GetSingleton<AiMap>()._aiMapData;
-
+            var aiMap = SystemAPI.GetSingleton<AiMap>();
+            var aiMapData = aiMap._aiMapData;
+            var currentAiPlayerPosition = Functions.Functions.GetAiPlayerPosition(ref state);
+            var optimalMove = 0;
             var aiMove = UniteData.Direction.Left;
+
+            #region Check score around to Find optimal route 
+            var upAiPlayerScore = Functions.Functions.GetUpId(currentAiPlayerPosition, _map.mapWidth, _map.mapHeight);
+            if (upAiPlayerScore > 0 && optimalMove < aiMapData[upAiPlayerScore])
+            {
+                optimalMove = aiMapData[upAiPlayerScore];
+                aiMove = UniteData.Direction.Up;
+                Debug.Log("ai up score:" + aiMapData[upAiPlayerScore] + "at position :" + upAiPlayerScore);
+            }
+            // Debug.Log("ai up" + upAiPlayerScore);
+
+
+            var leftAiPlayerScore = Functions.Functions.GetLeftId(currentAiPlayerPosition, _map.mapWidth, _map.mapHeight);
+            if (leftAiPlayerScore > 0 && optimalMove < aiMapData[leftAiPlayerScore])
+            {
+                optimalMove = aiMapData[leftAiPlayerScore];
+                aiMove = UniteData.Direction.Left;
+                Debug.Log("ai left score:" + aiMapData[leftAiPlayerScore] + "at position :" + leftAiPlayerScore);
+            }
+            // Debug.Log("ai left" + leftAiPlayerScore);
+
+
+            var downAiPlayerScore = Functions.Functions.GetDownId(currentAiPlayerPosition, _map.mapWidth, _map.mapHeight);
+            if (downAiPlayerScore > 0 && optimalMove < aiMapData[downAiPlayerScore])
+            {
+                optimalMove = aiMapData[downAiPlayerScore];
+                aiMove = UniteData.Direction.Down;
+                Debug.Log("ai down score:" + aiMapData[downAiPlayerScore] + "at position :" + downAiPlayerScore);
+            }
+            // Debug.Log("ai down" + downAiPlayerScore);
+
+
+            var rightAiPlayerScore = Functions.Functions.GetRightId(currentAiPlayerPosition, _map.mapWidth, _map.mapHeight);
+            if (rightAiPlayerScore > 0 && optimalMove < aiMapData[rightAiPlayerScore])
+            {
+                optimalMove = aiMapData[rightAiPlayerScore];
+                aiMove = UniteData.Direction.Right;
+                Debug.Log("ai right score:" + aiMapData[rightAiPlayerScore] + "at position :" + rightAiPlayerScore);
+            }
+            // Debug.Log("ai right" + rightAiPlayerScore);
+            Debug.Log("curentposition" + currentAiPlayerPosition + "AI MOVE " + aiMove);
+
+            #endregion
             SetPlayerMoveDirection(aiMove);
+
 
         }
 
@@ -114,6 +167,7 @@ namespace CoCa.Player
                     _playerMovementComponent.playerMovementPosition += _map.mapHeight;
                     break;
             }
+
         }
 
         //* Wait User get input, update next move to _playerMovementComponent
@@ -146,13 +200,13 @@ namespace CoCa.Player
         }
 
         //* Check legit next move on (Entity) base on _playerMovementComponent
-        private bool CheckLegitMove(ref SystemState state, Entity player)
+        private bool CheckLegitMove(ref SystemState state, Entity player, int nextMovePosition)
         {
             var previousPosition = state.EntityManager.
             GetComponentData<PlayerMovement>(player);
             var mapData = SystemAPI.GetSingleton<MapData>()._mapData;
             var rangeOfBlock = _map.mapHeight * _map.mapWidth;
-            var nextMovePosition = _playerMovementComponent.playerMovementPosition;
+
             var curMovePosition = previousPosition.playerMovementPosition;
 
             if (nextMovePosition >= rangeOfBlock || nextMovePosition < 0)
@@ -168,9 +222,19 @@ namespace CoCa.Player
         }
 
         //* Apply movement to (Entity) base on _playerMovementComponent 
-        private Direction Move(ref SystemState state, Entity mainPlayer)
+        private Direction Move(ref SystemState state, Entity currentPlayer)
         {
-            state.EntityManager.SetComponentData(mainPlayer, _playerMovementComponent);
+            state.EntityManager.SetComponentData(currentPlayer, _playerMovementComponent);
+
+            #region Update AiMapData
+            var aiMap = SystemAPI.GetSingleton<AiMap>();
+
+            Debug.Log("move " + _playerMovementComponent.playerMovementPosition);
+            Debug.Log("------------------------------- ");
+            aiMap._aiMapData[_playerMovementComponent.playerMovementPosition] = -1;
+            SystemAPI.SetSingleton<AiMap>(aiMap);
+            #endregion
+
             return _direction;
         }
 
