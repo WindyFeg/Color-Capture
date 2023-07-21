@@ -45,13 +45,18 @@ namespace CoCa.Ai
 
                 IsInitAiMap = true;
             }
+            // PrintAiMap();
 
+            state.Enabled = false;
 
+        }
+
+        private void PrintAiMap()
+        {
             for (int i = 0; i < aiMap.Length; i++)
             {
                 Debug.Log("Position " + i + " score :" + aiMap[i]);
             }
-            state.Enabled = false;
         }
 
         private NativeArray<int> InitAiCentreMapData(NativeArray<int> aiMap)

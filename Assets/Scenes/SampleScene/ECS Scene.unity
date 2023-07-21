@@ -171,6 +171,7 @@ MonoBehaviour:
   scoreInCentre: 4
   scoreHaftChooseMap: 5
   negScoreAroundEnemy: 1
+  stuckSpot: 1
 --- !u!1 &815003140
 GameObject:
   m_ObjectHideFlags: 0

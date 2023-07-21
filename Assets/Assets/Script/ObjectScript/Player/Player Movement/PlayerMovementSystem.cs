@@ -37,6 +37,7 @@ namespace CoCa.Player
             #region Turn base movement
             if (_playerTurn)
             {
+                #region Player 1
                 //* Get current player turn
                 _currentPlayer = mainPlayerEq.GetSingletonEntity();
                 _playerMovementComponent = state.EntityManager.
@@ -47,10 +48,14 @@ namespace CoCa.Player
                 {
                     Move(ref state, _currentPlayer);
                     _playerTurn = false;
+
+                    ReAiScore();
                 }
+                #endregion
             }
             else
             {
+                #region Player 2
                 //* Get current player turn
                 _currentPlayer = enemyPlayerEq.GetSingletonEntity();
                 _playerMovementComponent = state.EntityManager.
@@ -65,9 +70,11 @@ namespace CoCa.Player
                         Move(ref state, _currentPlayer);
                         _playerTurn = true;
                     }
+                    #endregion
                 }
                 else
                 {
+                    #region AI
                     //* Player VS AI
                     EnemyAutoSetLegitMove(ref state, _currentPlayer);
                     if (CheckLegitMove(ref state, _currentPlayer, _playerMovementComponent.playerMovementPosition))
@@ -79,11 +86,78 @@ namespace CoCa.Player
                     {
                         state.Enabled = false;
                     }
+                    #endregion
                 }
             }
 
             UpdatePlayerPosition(ref state);
             #endregion
+        }
+
+        private void ReAiScore()
+        {
+            var aiMap = SystemAPI.GetSingleton<AiMap>();
+            var ai = SystemAPI.GetSingleton<Ai.Ai>();
+            var aiMapData = aiMap._aiMapData;
+            int stuckSpot = 0;
+            int wallOrColored = 0;
+
+            for (int i = 0; i < aiMapData.Length; i++)
+            {
+                //* We Don't ReScore Wall Or Colored block
+                if (aiMapData[i] == 0 || aiMapData[i] == -1)
+                {
+                    continue;
+                }
+
+                wallOrColored = 0;
+                var upId = Functions.Functions.GetUpId(i, _map.mapWidth, _map.mapHeight);
+                if (upId > 0)
+                {
+                    if (aiMapData[upId] == 0 || aiMapData[upId] == -1)
+                    {
+                        wallOrColored++;
+                    }
+                }
+
+                var downId = Functions.Functions.GetDownId(i, _map.mapWidth, _map.mapHeight);
+                if (downId > 0)
+                {
+                    if (aiMapData[downId] == 0 || aiMapData[downId] == -1)
+                    {
+                        wallOrColored++;
+                    }
+                }
+
+                var leftId = Functions.Functions.GetLeftId(i, _map.mapWidth, _map.mapHeight);
+                if (leftId > 0)
+                {
+                    if (aiMapData[leftId] == 0 || aiMapData[leftId] == -1)
+                    {
+                        wallOrColored++;
+                    }
+                }
+
+                var rightId = Functions.Functions.GetRightId(i, _map.mapWidth, _map.mapHeight);
+                if (rightId > 0)
+                {
+                    if (aiMapData[rightId] == 0 || aiMapData[rightId] == -1)
+                    {
+                        wallOrColored++;
+                    }
+                }
+
+                if (wallOrColored >= 3)
+                {
+                    aiMapData[i] = ai._stuckSpot;
+                    stuckSpot++;
+                    // Debug.Log("Stuck spot position" + i);
+                    // Debug.Log(upId + "<-up " + downId + "<-down " + leftId + "<-left " + rightId + "<-right ");
+                }
+
+            }
+            Debug.Log("Stuck spot " + stuckSpot);
+            SystemAPI.SetSingleton<AiMap>(aiMap);
         }
 
 

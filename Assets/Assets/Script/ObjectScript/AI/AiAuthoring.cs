@@ -14,6 +14,8 @@ namespace CoCa.Ai
         public int scoreHaftChooseMap;
         public int negScoreAroundEnemy;
 
+        public int stuckSpot;
+
 
     }
 
@@ -23,9 +25,7 @@ namespace CoCa.Ai
         public int _scoreInCentre;
         public int _scoreHaftChooseMap;
         public int _negScoreAroundEnemy;
-
-
-
+        public int _stuckSpot;
     }
 
     public class AiBaker : Baker<AiAuthoring>
@@ -38,7 +38,8 @@ namespace CoCa.Ai
                 _scoreWall = authoring.scoreWall,
                 _scoreInCentre = authoring.scoreInCentre,
                 _scoreHaftChooseMap = authoring.scoreHaftChooseMap,
-                _negScoreAroundEnemy = authoring.negScoreAroundEnemy
+                _negScoreAroundEnemy = authoring.negScoreAroundEnemy,
+                _stuckSpot = authoring.stuckSpot
             });
         }
     }
