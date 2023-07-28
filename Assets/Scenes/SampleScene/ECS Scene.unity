@@ -170,7 +170,7 @@ MonoBehaviour:
   scoreWall: 3
   scoreInCentre: 4
   scoreHaftChooseMap: 5
-  negScoreAroundEnemy: 1
+  negScoreAroundEnemy: 3
   stuckSpot: 1
 --- !u!1 &815003140
 GameObject:

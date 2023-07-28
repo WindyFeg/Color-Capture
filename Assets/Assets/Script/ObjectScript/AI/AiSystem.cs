@@ -69,6 +69,7 @@ namespace CoCa.Ai
             {
                 aiMap[i] += patternFlatten[i];
             }
+
             return aiMap;
         }
 
