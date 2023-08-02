@@ -14,7 +14,7 @@ namespace CoCa.Map
             state.RequireForUpdate<Map>();
         }
 
-        [BurstCompile]
+        // [BurstCompile]
         public void OnUpdate(ref SystemState state)
         {
             RandomWall(ref state);
@@ -24,7 +24,7 @@ namespace CoCa.Map
         private void RandomWall(ref SystemState state)
         {
             #region Variable
-            var gameManager = state.GetEntityQuery(typeof(Map)).GetSingletonEntity();
+            var gameManager = state.GetEntityQuery(typeof(CoCa.Map.Map)).GetSingletonEntity();
             var map = SystemAPI.GetSingleton<Map>();
             NativeArray<UniteData.Color> mapData = new NativeArray<UniteData.Color>(map.mapWidth * map.mapHeight, Allocator.TempJob);
             int totalBlock = map.mapWidth * map.mapHeight;
